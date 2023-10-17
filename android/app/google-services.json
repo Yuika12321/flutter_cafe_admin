@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "765657516408",
+    "project_id": "project-5368672327624315569",
+    "storage_bucket": "project-5368672327624315569.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:765657516408:android:00ba6546b0662ef709208d",
+        "android_client_info": {
+          "package_name": "com.example.flutter_cafe_admin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCw6vzSB8R9OoZukVQQTXSIUgKLiVucf10"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
