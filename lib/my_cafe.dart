@@ -14,12 +14,37 @@ class MyCafe {
     }
   }
 
-  Future<QuerySnapshot<Map<String, dynamic>>?> get(
-      {required String collectionName}) async {
+  Future<bool> delete({required String collectionName, required id}) async {
     try {
-      return db.collection(collectionName).get();
+      var result = db.collection(collectionName).doc(id).delete;
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<dynamic> get({
+    required String collectionName,
+    required String? id,
+    required String? filedName,
+    required String? filedValue,
+  }) async {
+    try {
+      // 전체 찾기
+      if (id == null && filedName == null) {
+        return db.collection(collectionName).get();
+      } else if (id != null) {
+        // 고유 아이디로 찾아서 리턴
+        return db.collection(collectionName).where(id).get();
+      } else if (filedName != null) {
+        // 필드값 갖고 찾기
+        return db
+            .collection(collectionName)
+            .where(filedName, isEqualTo: filedValue);
+      }
     } catch (e) {
       return null;
     }
+    return null;
   }
 }

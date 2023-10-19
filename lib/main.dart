@@ -36,7 +36,7 @@ class _NaviState extends State<Navi> {
       label: 'result',
     ),
   ];
-  // pages => bottom
+  // pages => bottomnavi와 매핑
   var pages = [const CafeOrder(), const CafeItem(), const CafeResult()];
   dynamic body;
   @override
