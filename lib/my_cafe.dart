@@ -14,6 +14,32 @@ class MyCafe {
     }
   }
 
+  Future<dynamic> get({
+    required String collectionName,
+    String? id,
+    String? filedName,
+    String? filedValue,
+  }) async {
+    try {
+      // 전체 찾기
+      if (id == null && filedName == null) {
+        return await db.collection(collectionName).get();
+      } else if (id != null) {
+        // 고유 아이디로 찾아서 리턴
+        return await db.collection(collectionName).doc(id).get();
+      } else if (filedName != null) {
+        // 필드값 갖고 찾기
+        return db
+            .collection(collectionName)
+            .where(filedName, isEqualTo: filedValue)
+            .get();
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+
   Future<bool> delete({required String collectionName, required id}) async {
     try {
       var result = db.collection(collectionName).doc(id).delete;
@@ -23,28 +49,16 @@ class MyCafe {
     }
   }
 
-  Future<dynamic> get({
+  Future<bool> update({
     required String collectionName,
-    required String? id,
-    required String? filedName,
-    required String? filedValue,
+    required String id,
+    required Map<String, dynamic> data,
   }) async {
     try {
-      // 전체 찾기
-      if (id == null && filedName == null) {
-        return db.collection(collectionName).get();
-      } else if (id != null) {
-        // 고유 아이디로 찾아서 리턴
-        return db.collection(collectionName).where(id).get();
-      } else if (filedName != null) {
-        // 필드값 갖고 찾기
-        return db
-            .collection(collectionName)
-            .where(filedName, isEqualTo: filedValue);
-      }
+      await db.collection(collectionName).doc(id).update(data);
+      return true;
     } catch (e) {
-      return null;
+      return false;
     }
-    return null;
   }
 }

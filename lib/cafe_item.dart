@@ -45,12 +45,15 @@ class _CafeItemState extends State<CafeItem> {
                         onSelected: (value) async {
                           switch (value) {
                             case 'modify':
-                              var result = Navigator.push(
+                              var result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
                                         CafeCategoryAddForm(id: data.id),
                                   ));
+                              if (result == true) {
+                                getCategory();
+                              }
                               break;
                             case 'delete':
                               var result = await myCafe.delete(
@@ -132,13 +135,15 @@ class _CafeCategoryAddFormState extends State<CafeCategoryAddForm> {
   String? id;
   var isUsed = true;
 
-  Future<QuerySnapshot> getData({required String id}) async {
+  Future<void> getData({required String id}) async {
     var data = await myCafe.get(
-        collectionName: categoryCollectionName,
-        id: id,
-        filedName: null,
-        filedValue: null);
-    return data;
+      collectionName: categoryCollectionName,
+      id: id,
+    );
+    setState(() {
+      controller.text = data['categoryName'];
+      isUsed = data['isUsed'];
+    });
   }
 
   @override
@@ -147,8 +152,8 @@ class _CafeCategoryAddFormState extends State<CafeCategoryAddForm> {
     super.initState();
     id = widget.id;
     if (id != null) {
+      // update 상황
       var data = getData(id: id!);
-      print(data);
     }
   }
 
@@ -166,8 +171,13 @@ class _CafeCategoryAddFormState extends State<CafeCategoryAddForm> {
                     'categoryName': controller.text,
                     'isUsed': isUsed
                   };
-                  var result = await myCafe.insert(
-                      collectionName: categoryCollectionName, data: data);
+                  var result = id != null
+                      ? await myCafe.update(
+                          collectionName: categoryCollectionName,
+                          id: id!,
+                          data: data)
+                      : await myCafe.insert(
+                          collectionName: categoryCollectionName, data: data);
                   if (result == true) {
                     Navigator.pop(context, true);
                   }
