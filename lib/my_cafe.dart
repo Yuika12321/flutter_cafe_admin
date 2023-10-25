@@ -27,6 +27,10 @@ class MyCafe {
       } else if (id != null) {
         // 고유 아이디로 찾아서 리턴
         return await db.collection(collectionName).doc(id).get();
+        // return await db
+        //     .collection(collectionName)
+        //     .where(FieldPath.documentId, isEqualTo: id)
+        //     .get();
       } else if (filedName != null) {
         // 필드값 갖고 찾기
         return db
@@ -40,9 +44,10 @@ class MyCafe {
     return null;
   }
 
-  Future<bool> delete({required String collectionName, required id}) async {
+  Future<bool> delete(
+      {required String collectionName, required String id}) async {
     try {
-      var result = db.collection(collectionName).doc(id).delete;
+      await db.collection(collectionName).doc(id).delete();
       return true;
     } catch (e) {
       return false;

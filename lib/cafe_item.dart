@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cafe_admin/my_cafe.dart';
 import 'my_cafe.dart';
-import 'main.dart';
 
 MyCafe myCafe = MyCafe();
 String categoryCollectionName = 'cafe_category';
 String itemCollectionName = 'cafe-item';
 
+// 카테고리 목록보기
 class CafeItem extends StatefulWidget {
   const CafeItem({super.key});
 
@@ -40,6 +40,15 @@ class _CafeItemState extends State<CafeItem> {
                   itemBuilder: (context, index) {
                     var data = datas[index];
                     return ListTile(
+                      onTap: () async {
+                        await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CafeItemList(
+                                id: data.id,
+                              ),
+                            ));
+                      },
                       title: Text(data['categoryName']),
                       trailing: PopupMenuButton(
                         onSelected: (value) async {
@@ -122,6 +131,7 @@ class _CafeItemState extends State<CafeItem> {
   }
 }
 
+// 카테고리 추가 / 수정 폼
 class CafeCategoryAddForm extends StatefulWidget {
   String? id;
   CafeCategoryAddForm({super.key, required this.id});
@@ -211,5 +221,174 @@ class _CafeCategoryAddFormState extends State<CafeCategoryAddForm> {
             )
           ],
         ));
+  }
+}
+
+// 아이템 목록보기
+class CafeItemList extends StatefulWidget {
+  String id;
+  CafeItemList({super.key, required this.id});
+
+  @override
+  State<CafeItemList> createState() => _CafeItemListState();
+}
+
+class _CafeItemListState extends State<CafeItemList> {
+  late String id;
+  dynamic dropdownMenu = const Text('loading  . . . . ');
+  dynamic itemList = const Text('itemList');
+
+  @override
+  void initState() {
+    super.initState();
+    id = widget.id;
+    getCategory(id);
+  }
+
+  Future<void> getCategory(String id) async {
+    var datas = myCafe.get(collectionName: categoryCollectionName);
+    List<DropdownMenuEntry> entries = [];
+    setState(() {
+      dropdownMenu = FutureBuilder(
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            var datas = snapshot.data.docs;
+            for (var data in datas) {
+              entries.add(
+                DropdownMenuEntry(value: data.id, label: data['categoryName']),
+              );
+            }
+            return DropdownMenu(
+              dropdownMenuEntries: entries,
+              initialSelection: id,
+              onSelected: (value) {
+                print('$value item list');
+              },
+            );
+          } else {
+            return const Text('loading . . . . . . . . . ');
+          }
+        },
+        future: datas,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Item List'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CafeCategoryAddForm(id: id),
+                  ));
+            },
+            child: const Text(
+              '+item',
+              style: TextStyle(color: Colors.white),
+            ),
+          )
+        ],
+      ),
+      body: Column(
+        children: [
+          dropdownMenu,
+          const Text('List'),
+        ],
+      ),
+    );
+  }
+}
+
+// 아이템 추가 / 수정 폼
+// 이름, 가격, 옵션, 매진여부, 설명
+class CafeItemAddForm extends StatefulWidget {
+  String categoryId;
+  String? itemId;
+  CafeItemAddForm({super.key, required this.categoryId, this.itemId});
+
+  @override
+  State<CafeItemAddForm> createState() => _CafeStateItemAddForm();
+}
+
+class _CafeStateItemAddForm extends State<CafeItemAddForm> {
+  late String categoryId;
+  String? itemId;
+  TextEditingController controllerTitle = TextEditingController();
+  TextEditingController controllerPrice = TextEditingController();
+  TextEditingController controllerDesc = TextEditingController();
+
+  bool isSoldOut = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    categoryId = widget.categoryId;
+    itemId = widget.itemId;
+    // item == null =>
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('item add form'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              var data = {
+                'itemName': controllerTitle.text,
+                'itemPrice': controllerPrice.text,
+                'itemDesc': controllerDesc.text,
+                'itemIsSoldOut': isSoldOut,
+              };
+              var result = await myCafe.insert(
+                  collectionName: itemCollectionName, data: data);
+              if (result == true) {
+                Navigator.pop(context, true);
+              }
+            },
+            child: const Text('저장함'),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          TextFormField(
+            decoration: const InputDecoration(
+              label: Text('이름'),
+            ),
+            controller: controllerTitle,
+          ),
+          TextFormField(
+            decoration: const InputDecoration(
+              label: Text('가격'),
+            ),
+            controller: controllerPrice,
+          ),
+          TextFormField(
+            decoration: const InputDecoration(
+              label: Text('설명'),
+            ),
+            controller: controllerDesc,
+          ),
+          SwitchListTile(
+            value: isSoldOut,
+            onChanged: (value) {
+              setState(() {
+                isSoldOut = value;
+              });
+            },
+            title: const Text('sold out ?'),
+          )
+        ],
+      ),
+    );
   }
 }
