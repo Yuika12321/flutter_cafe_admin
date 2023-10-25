@@ -5,7 +5,7 @@ import 'my_cafe.dart';
 
 MyCafe myCafe = MyCafe();
 String categoryCollectionName = 'cafe_category';
-String itemCollectionName = 'cafe-item';
+String itemCollectionName = 'cafe_item';
 
 // 카테고리 목록보기
 class CafeItem extends StatefulWidget {
@@ -285,7 +285,10 @@ class _CafeItemListState extends State<CafeItemList> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CafeCategoryAddForm(id: id),
+                    builder: (context) => CafeItemAddForm(
+                      itemId: id,
+                      categoryId: '',
+                    ),
                   ));
             },
             child: const Text(
