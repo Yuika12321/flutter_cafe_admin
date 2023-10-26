@@ -409,6 +409,7 @@ class _CafeStateItemAddForm extends State<CafeItemAddForm> {
               label: Text('가격'),
             ),
             controller: controllerPrice,
+            keyboardType: TextInputType.number,
           ),
           TextFormField(
             decoration: const InputDecoration(
@@ -430,9 +431,16 @@ class _CafeStateItemAddForm extends State<CafeItemAddForm> {
             onPressed: () {
               var optionName = controllerOptionName.text;
               var optionValue = controllerOptionValue.text;
-              var data = {'optionName': optionName, 'optionValue': optionValue};
-              options.add(data);
-              showOptionList();
+
+              if (optionName != '' || optionValue != '') {
+                var data = {
+                  'optionName': optionName,
+                  'optionValue': optionValue
+                };
+
+                options.add(data);
+                showOptionList();
+              }
             },
             icon: const Icon(Icons.arrow_circle_up),
           ),
