@@ -243,6 +243,67 @@ class _CafeItemListState extends State<CafeItemList> {
     super.initState();
     id = widget.id;
     getCategory(id);
+    getItemList(id);
+  }
+
+  Future<void> getItemList(String? categoryId) async {
+    var datas = categoryId == null
+        ? myCafe.get(collectionName: 'cafe_item')
+        : myCafe.get(
+            collectionName: 'cafe_item',
+            filedName: 'categoryId',
+            filedValue: categoryId);
+    setState(() {
+      itemList = FutureBuilder(
+        future: datas,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            var items = snapshot.data.docs;
+            if (items.length == 0) {
+              return const Text('nothing');
+            } else {
+              return ListView.separated(
+                  itemBuilder: (context, index) {
+                    // items[index]['itemName'];
+                    var item = items[index];
+                    return ListTile(
+                      title: Text('${item['itemName']} (${item['itemPrice']})'),
+                      subtitle: Text('${item['options']}'),
+                      trailing: PopupMenuButton(
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            child: const Text('수정'),
+                            onTap: () {
+                              // 수정하는 코드 작성.
+                              // CafeItemAddForm을 호출하는데 정보(id)를 불러서 처리
+                            },
+                          ),
+                          PopupMenuItem(
+                            child: const Text('삭제'),
+                            onTap: () async {
+                              await myCafe
+                                  .delete(
+                                      collectionName: 'cafe_item', id: item.id)
+                                  .then((value) {
+                                getItemList(categoryId);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  separatorBuilder: (context, index) => const Divider(),
+                  itemCount: items.length);
+            }
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      );
+    });
   }
 
   Future<void> getCategory(String id) async {
@@ -261,8 +322,10 @@ class _CafeItemListState extends State<CafeItemList> {
             return DropdownMenu(
               dropdownMenuEntries: entries,
               initialSelection: id,
-              onSelected: (value) {
-                print('$value item list');
+              onSelected: (value) async {
+                //value = categoryID
+                getItemList(value);
+                // print('$value item list');
               },
             );
           } else {
@@ -281,15 +344,19 @@ class _CafeItemListState extends State<CafeItemList> {
         title: const Text('Item List'),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CafeItemAddForm(
-                      itemId: id,
-                      categoryId: '',
-                    ),
-                  ));
+            onPressed: () async {
+              var result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CafeItemAddForm(
+                    itemId: id,
+                    categoryId: id,
+                  ),
+                ),
+              );
+              if (result == true) {
+                getItemList(id);
+              }
             },
             child: const Text(
               '+item',
@@ -301,7 +368,9 @@ class _CafeItemListState extends State<CafeItemList> {
       body: Column(
         children: [
           dropdownMenu,
-          const Text('List'),
+          Expanded(
+            child: itemList,
+          ),
         ],
       ),
     );

@@ -4,7 +4,6 @@ import 'package:flutter_cafe_admin/cafe_order.dart';
 import 'package:flutter_cafe_admin/cafe_item.dart';
 import 'package:flutter_cafe_admin/cafe_result.dart';
 import 'firebase_options.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
   await Firebase.initializeApp(
