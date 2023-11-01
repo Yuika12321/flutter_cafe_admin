@@ -270,13 +270,36 @@ class _CafeItemListState extends State<CafeItemList> {
                       title: Text('${item['itemName']} (${item['itemPrice']})'),
                       subtitle: Text('${item['options']}'),
                       trailing: PopupMenuButton(
+                        onSelected: (value) async {
+                          switch (value) {
+                            case 'modify':
+                              var result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CafeItemAddForm(
+                                        categoryId: item['categoryId'],
+                                        itemId: item.id),
+                                  ));
+                              if (result == true) {
+                                setState(() {
+                                  getItemList(id);
+                                });
+                              }
+                              break;
+                            case 'delete':
+                              var data = await myCafe.delete(
+                                  collectionName: 'cafe_item', id: item.id);
+
+                              if (data) {
+                                getItemList(id);
+                              }
+                              break;
+                          }
+                        },
                         itemBuilder: (context) => [
-                          PopupMenuItem(
-                            child: const Text('수정'),
-                            onTap: () {
-                              // 수정하는 코드 작성.
-                              // CafeItemAddForm을 호출하는데 정보(id)를 불러서 처리
-                            },
+                          const PopupMenuItem(
+                            value: "modify",
+                            child: Text("수정"),
                           ),
                           PopupMenuItem(
                             child: const Text('삭제'),
@@ -434,6 +457,31 @@ class _CafeStateItemAddForm extends State<CafeItemAddForm> {
     categoryId = widget.categoryId;
     itemId = widget.itemId;
     // item == null => new, !null => 'modify'
+    if (itemId != null) {
+      getItemById(itemId);
+    }
+  }
+
+  void getItemById(itemId) async {
+    var data = await myCafe.get(collectionName: itemCollectionName, id: itemId);
+
+    controllerTitle.text = data['itemName'];
+    controllerPrice.text = data['itemPrice'].toString();
+    controllerDesc.text = data['itemDesc'];
+    isSoldOut = data['itemIsSoldOut'];
+
+    if (data['optios'].length != 0) {
+      for (var i in data['options']) {
+        options.add(
+            {'optionName': i['optionName'], 'optionValue': i['optionValue']});
+      }
+
+      setState(() {
+        showOptionList();
+      });
+    }
+
+    return;
   }
 
   @override
@@ -452,8 +500,16 @@ class _CafeStateItemAddForm extends State<CafeItemAddForm> {
                 'categoryId': categoryId,
                 'options': options,
               };
-              var result = await myCafe.insert(
-                  collectionName: itemCollectionName, data: data);
+
+              var result = itemId != null
+                  ? await myCafe.update(
+                      collectionName: itemCollectionName,
+                      id: itemId!,
+                      data: data)
+                  : await myCafe.insert(
+                      collectionName: itemCollectionName, data: data);
+              // var result = await myCafe.insert(
+              //     collectionName: itemCollectionName, data: data);
               if (result == true) {
                 Navigator.pop(context, true);
               }
