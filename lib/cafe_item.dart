@@ -471,9 +471,13 @@ class _CafeStateItemAddForm extends State<CafeItemAddForm> {
     isSoldOut = data['itemIsSoldOut'];
 
     if (data['optios'].length != 0) {
-      for (var i in data['options']) {
+      for (var option in data['options']) {
         options.add(
-            {'optionName': i['optionName'], 'optionValue': i['optionValue']});
+          {
+            'optionName': option?['optionName'],
+            'optionValue': option?['optionValue'],
+          },
+        );
       }
 
       setState(() {
