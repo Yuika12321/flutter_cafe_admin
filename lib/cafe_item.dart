@@ -372,7 +372,7 @@ class _CafeItemListState extends State<CafeItemList> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => CafeItemAddForm(
-                    itemId: id,
+                    itemId: null,
                     categoryId: id,
                   ),
                 ),
@@ -474,8 +474,8 @@ class _CafeStateItemAddForm extends State<CafeItemAddForm> {
       for (var option in data['options']) {
         options.add(
           {
-            'optionName': option?['optionName'],
-            'optionValue': option?['optionValue'],
+            'optionName': option['optionName'],
+            'optionValue': option['optionValue'],
           },
         );
       }
