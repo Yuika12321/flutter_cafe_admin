@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_cafe_admin/cafe_incomplete.dart';
 import 'package:flutter_cafe_admin/cafe_order.dart';
 import 'package:flutter_cafe_admin/cafe_item.dart';
 import 'package:flutter_cafe_admin/cafe_result.dart';
@@ -36,7 +37,7 @@ class _NaviState extends State<Navi> {
     ),
   ];
   // pages => bottomnavi와 매핑
-  var pages = [const CafeOrder(), const CafeItem(), const CafeResult()];
+  var pages = [const CafeInComplete(), const CafeItem(), const CafeResult()];
   dynamic body;
   @override
   void initState() {
